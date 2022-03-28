@@ -1,7 +1,3 @@
-# docker-compose-laravel
-A pretty simplified Docker Compose workflow that sets up a LEMP network of containers for local Laravel development. You can view the full article that inspired this repo [here](https://dev.to/aschmelyun/the-beauty-of-docker-for-local-laravel-development-13c0).
-
-[![GitNFT](https://img.shields.io/badge/%F0%9F%94%AE-Open%20in%20GitNFT-darkviolet?style=flat)](https://gitnft.quine.sh/app/commits/list/repo/docker-compose-laravel)
 
 ## Usage
 
@@ -13,7 +9,7 @@ After that completes, follow the steps from the [src/README.md](src/README.md) f
 
 Bringing up the Docker Compose network with `site` instead of just using `up`, ensures that only our site's containers are brought up at the start, instead of all of the command containers as well. The following are built for our web server, with their exposed ports detailed:
 
-- **nginx** - `:80`
+- **nginx** - `:81`
 - **mysql** - `:3306`
 - **php** - `:9000`
 - **redis** - `:6379`
@@ -55,29 +51,51 @@ By default, whenever you bring down the Docker network, your MySQL data will be 
 volumes:
   - ./mysql:/var/lib/mysql
 ```
+## HTTP Methods
+Available HTTP methods on a resource
 
-## Using BrowserSync with Laravel Mix
+| **Verb**        | **Path**           | **Action**  | **Route Name**        | **Description**   |
+| -------------   |-------------| -----| ------------- |-------------|
+| GET         | /courses | index | course.index | Get all courses expected results:    {
+        "id": 1,
+        "name": "Alexys Mertz",
+        "capacity": 3,
+        "enrollments": 0,
+        "availibility": "Yes",
+        "created_at": "2022-03-28T14:49:20.000000Z",
+        "updated_at": "2022-03-28T14:49:20.000000Z"
+    } |
 
-If you want to enable the hot-reloading that comes with Laravel Mix's BrowserSync option, you'll have to follow a few small steps. First, ensure that you're using the updated `docker-compose.yml` with the `:3000` and `:3001` ports open on the npm service. Then, add the following to the end of your Laravel project's `webpack.mix.js` file:
 
-```javascript
-.browserSync({
-    proxy: 'site',
-    open: false,
-    port: 3000,
-});
-```
+Available HTTP methods for registration
 
-From your terminal window at the project root, run the following command to start watching for changes with the npm container and its mapped ports:
+| **Verb**        | **Path**           | **Action**  | **Route Name**        | **Description**   |
+| -------------   |-------------| -----| ------------- |-------------|
+| POST         | /registrations | courseRegistration | registration.courseRegistration | For new student registration pass student_id(between 1 to 25) and course_id(between 1-15) as parameters
+example:{
+    "student_id":"6",
+    "course_id":"2"
+}
+results: {
+    "success": "Successfully registered for the course!"
+}
 
-```bash
-docker-compose run --rm --service-ports npm run watch
-```
+if  user already registered, give the following out put.
+{
+    "message": "The given data was invalid.",
+    "errors": {
+        "student_id": [
+            "This student already registered for this course"
+        ]
+    }
+}
 
-That should keep a small info pane open in your terminal (which you can exit with Ctrl + C). Visiting [localhost:3000](http://localhost:3000) in your browser should then load up your Laravel application with BrowserSync enabled and hot-reloading active.
-
-## MailHog
-
-The current version of Laravel (8 as of today) uses MailHog as the default application for testing email sending and general SMTP work during local development. Using the provided Docker Hub image, getting an instance set up and ready is simple and straight-forward. The service is included in the `docker-compose.yml` file, and spins up alongside the webserver and database services.
-
-To see the dashboard and view any emails coming through the system, visit [localhost:8025](http://localhost:8025) after running `docker-compose up -d site`.
+if student_id or course id is invalid it will disaply following out put.
+{
+    "message": "The given data was invalid.",
+    "errors": {
+        "student_id": [
+            "The selected student id is invalid."
+        ]
+    }
+}
